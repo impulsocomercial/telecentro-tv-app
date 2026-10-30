@@ -20,20 +20,21 @@ jobs:
       - name: Configurar Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Crear proyecto Android con Capacitor
+      - name: Instalar y empaquetar con Cordova
         run: |
-          npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init TelecentroTV com.telecentrotv.app --web-dir .
-          npx cap add android
-          npx cap sync
+          npm install -g cordova
+          cordova create miApp com.telecentrotv.app TelecentroTV
+          cd miApp
+          rm -rf www/*
+          cp ../index.html www/index.html
+          cordova platform add android
 
-      - name: Compilar APK Debug
+      - name: Compilar APK
         run: |
-          cd android
+          cd miApp/platforms/android
           chmod +x gradlew
           ./gradlew assembleDebug
 
@@ -41,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: TelecentroTV-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: miApp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
